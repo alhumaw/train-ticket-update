@@ -6,7 +6,7 @@ from locust import HttpUser, task, between
 from kube import get_ip_map, UserBase, get_random_time
 
 class NormalUser(HttpUser):
-    host = "http://10.104.31.0:32677"
+    host = "http://10.102.65.26:32677"
     weight = 100
     wait_time = between(1, 2.5)
 
@@ -223,7 +223,7 @@ class NormalUser(HttpUser):
 
 class AdminUser(HttpUser):
     weight = 1
-    host = "http//10.104.31.0:32677"
+    host = "http//10.102.65.26:32677"
     # weight = 100
     wait_time = between(1, 2.5)
 
