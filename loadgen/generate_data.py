@@ -125,7 +125,7 @@ class DataGenerator(UserBase):
             # print(response)
 
 
-ip_map, port_map = get_ip_map("3a4205d9a390")
+ip_map, port_map = get_ip_map()
 # generator = DataGenerator('fdse_microservice', '111111', ip_map, port_map)
 generator = DataGenerator('admin', '222222', ip_map, port_map)
 # generator.login()

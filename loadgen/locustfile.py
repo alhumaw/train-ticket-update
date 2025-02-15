@@ -6,11 +6,11 @@ from locust import HttpUser, task, between
 from common import get_ip_map, UserBase, get_random_time
 
 class NormalUser(HttpUser):
-    host = "http://"
+    host = "http://10.104.31.0:32677"
     weight = 100
     wait_time = between(1, 2.5)
 
-    ip_map, port_map = get_ip_map('3a4205d9a390')
+    ip_map, port_map = get_ip_map()
 
     def on_start(self):
         username = 'fdse_microservice' + str(random.randrange(10))
@@ -223,11 +223,11 @@ class NormalUser(HttpUser):
 
 class AdminUser(HttpUser):
     weight = 1
-    host = "https://pratikfegade.github.io"
+    host = "http//10.104.31.0:32677"
     # weight = 100
     wait_time = between(1, 2.5)
 
-    ip_map, port_map = get_ip_map('3a4205d9a390')
+    ip_map, port_map = get_ip_map()
 
     def get_addr(self, service, path):
         return 'http://' + NormalUser.ip_map[service] + ':' + NormalUser.port_map[service] + path

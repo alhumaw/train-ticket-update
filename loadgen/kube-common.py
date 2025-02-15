@@ -6,7 +6,7 @@ import datetime
 
 
 
-def get_ip_map(network_id):
+def get_ip_map():
     code,process = getstatusoutput("kubectl get svc -n train-ticket --no-headers | awk '{print $1,$3}'")
     process = process.strip().split("\n")
     full_ip_map = {}

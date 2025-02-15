@@ -243,7 +243,7 @@ class User(UserBase):
         self.place_random_order()
         # self.get_est_route()
 
-ip_map, port_map = get_ip_map("3a4205d9a390")
+ip_map, port_map = get_ip_map()
 
 user = User('fdse_microservice', '111111', ip_map, port_map)
 user.run()
