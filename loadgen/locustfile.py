@@ -6,7 +6,7 @@ from locust import HttpUser, task, between
 from common import get_ip_map, UserBase, get_random_time
 
 class NormalUser(HttpUser):
-    host = "https://pratikfegade.github.io"
+    host = "http://"
     weight = 100
     wait_time = between(1, 2.5)
 
