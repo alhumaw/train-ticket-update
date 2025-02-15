@@ -36,7 +36,7 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
      * build local cache
      */
     public Cache<String, String> cacheCode = CacheBuilder.newBuilder()
-            // max  size
+            // max size
             .maximumSize(CAPTCHA_EXPIRED)
             .expireAfterAccess(CAPTCHA_EXPIRED, TimeUnit.SECONDS)
             .build();
@@ -44,10 +44,11 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
     private static char mapTable[] = {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
             'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-            'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+            'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
     @Override
-    public Map<String, Object> getImageCode(int width, int height, OutputStream os, HttpServletRequest request, HttpServletResponse response, HttpHeaders headers) {
+    public Map<String, Object> getImageCode(int width, int height, OutputStream os, HttpServletRequest request,
+            HttpServletResponse response, HttpHeaders headers) {
         Map<String, Object> returnMap = new HashMap<>();
         if (width <= 0) {
             width = 60;
@@ -59,14 +60,16 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
 
         Graphics g = image.getGraphics();
 
-        Random random = new Random(); //NOSONAR
-
+        // Fill background
         g.setColor(getRandColor(200, 250));
         g.fillRect(0, 0, width, height);
 
+        // Set font
         g.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 
+        // Draw interference lines
         g.setColor(getRandColor(160, 200));
+        Random random = new Random();
         for (int i = 0; i < 168; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
@@ -75,21 +78,22 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
             g.drawLine(x, y, x + xl, y + yl);
         }
 
-        String strEnsure = "";
+        // Hardcode the verification code
+        String strEnsure = "1234";
 
-        for (int i = 0; i < 4; ++i) {
-            strEnsure += mapTable[(int) (mapTable.length * Math.random())];
-
-            g.setColor(new Color(20 + random.nextInt(110), 20 + random.nextInt(110), 20 + random.nextInt(110)));
-
+        // Draw the hardcoded code onto the image
+        g.setColor(new Color(20, 20, 20));
+        for (int i = 0; i < strEnsure.length(); i++) {
             String str = strEnsure.substring(i, i + 1);
             g.drawString(str, 13 * i + 6, 16);
         }
-
         g.dispose();
+
         returnMap.put("image", image);
         returnMap.put("strEnsure", strEnsure);
 
+        // Use cookie to store the verification code for later verification
+        String ysbCaptcha = "YsbCaptcha";
         Cookie cookie = CookieUtil.getCookieByName(request, ysbCaptcha);
         String cookieId;
         if (cookie == null) {
@@ -103,13 +107,13 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
                 cookieId = cookie.getValue();
             }
         }
-        VerifyCodeServiceImpl.LOGGER.info(" {}  ___ st", strEnsure);
         cacheCode.put(cookieId, strEnsure);
         return returnMap;
     }
 
     @Override
-    public boolean verifyCode(HttpServletRequest request, HttpServletResponse response, String receivedCode, HttpHeaders headers) {
+    public boolean verifyCode(HttpServletRequest request, HttpServletResponse response, String receivedCode,
+            HttpHeaders headers) {
         boolean result = false;
         Cookie cookie = CookieUtil.getCookieByName(request, ysbCaptcha);
         String cookieId;
@@ -131,9 +135,8 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
         return result;
     }
 
-
     static Color getRandColor(int fc, int bc) {
-        Random random = new Random(); //NOSONAR
+        Random random = new Random(); // NOSONAR
         if (fc > 255) {
             fc = 255;
         }
