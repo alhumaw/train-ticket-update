@@ -3,7 +3,7 @@ import json
 import random
 import time
 from locust import HttpUser, task, between
-from common import get_ip_map, UserBase, get_random_time
+from kube import get_ip_map, UserBase, get_random_time
 
 class NormalUser(HttpUser):
     host = "http://10.104.31.0:32677"

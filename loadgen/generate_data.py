@@ -3,7 +3,7 @@ import requests
 import uuid
 import random
 
-from common import get_ip_map, UserBase, get_random_time
+from kube import get_ip_map, UserBase, get_random_time
 
 num_stations = random.randint(20, 100)
 num_users = random.randint(100, 1000)

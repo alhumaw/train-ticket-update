@@ -4,7 +4,7 @@ import json
 import requests
 import subprocess
 
-from common import get_ip_map, UserBase, get_random_time
+from kube import get_ip_map, UserBase, get_random_time
 
 class User(UserBase):
     def __init__(self, username, password, ip_map, port_map):
