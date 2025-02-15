@@ -223,7 +223,7 @@ class NormalUser(HttpUser):
 
 class AdminUser(HttpUser):
     weight = 1
-    host = "http//10.102.65.26:32677"
+    host = "http://10.102.65.26:32677"
     # weight = 100
     wait_time = between(1, 2.5)
 
