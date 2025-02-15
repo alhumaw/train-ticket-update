@@ -33,8 +33,6 @@ def get_ip_map():
     for key, value in full_ip_map.items():
         if key in port_map:
             ip_map[key] = value
-    print(ip_map)
-
     return ip_map, port_map
 
 epoch = datetime.datetime.utcfromtimestamp(0)
@@ -68,5 +66,6 @@ class UserBase:
         response = requests.post(self.get_addr('ui-dashboard', "/api/v1/users/login"),
                                  json={'username':self.username, 'password': self.password, 'verificationCode':'1234'})
         data = json.loads(response._content)['data']
+        print(data)
         self.token = data['token']
         self.userId = data['userId']
