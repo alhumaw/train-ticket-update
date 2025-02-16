@@ -1386,7 +1386,7 @@ spec:
     spec:
       containers:
       - name: ts-verification-code-service
-        image: codewisdom/ts-verification-code-service:0.0.4
+        image: alhumaw/my-ts-verification-code-service:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 15678
