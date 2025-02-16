@@ -147,25 +147,51 @@ class NormalUser(HttpUser):
 
     @task
     def get_sold_tickets(self):
-        random_order = random.choice(self.getAllOrders())
-        travel_date = random_order['travelDate']
-        train_number = random_order['trainNumber']
-        response = self.client.post(self.get_addr('order-service', "/api/v1/orderservice/order/tickets"),
-                                 json = {
-                                     "travelDate": travel_date,
-                                     "trainNumber": train_number
-                                 }, headers=self.auth_headers())
+        try:
+            random_order = random.choice(self.getAllOrders())
+        except Exception as e:
+            print(f"[DEBUG] No orders available: {e}")
+            return
+
+        travel_date = random_order.get('travelDate')
+        train_number = random_order.get('trainNumber')
+        url = self.get_addr('order-service', "/api/v1/orderservice/order/tickets")
+        payload = {
+            "travelDate": travel_date,
+            "trainNumber": train_number
+        }
+        print(f"[DEBUG] Get Sold Tickets - URL: {url}, Payload: {payload}")
+        response = self.client.post(url, json=payload, headers=self.auth_headers())
+        try:
+            content = response._content.decode('utf-8')
+        except Exception as e:
+            content = str(e)
+        print(f"[DEBUG] get_sold_tickets response - Status: {response.status_code}, Content: {content}")
+
 
     @task
     def query_already_sold_orders(self):
-        random_order = random.choice(self.getAllOrders())
-        travel_date = random_order['travelDate']
-        train_number = random_order['trainNumber']
-        response = self.client.post(self.get_addr('order-service', "/api/v1/orderservice/order/query_already_sold_orders"),
-                                 json = {
-                                     "travelDate": travel_date,
-                                     "trainNumber": train_number
-                                 }, headers=self.auth_headers())
+        try:
+            random_order = random.choice(self.getAllOrders())
+        except Exception as e:
+            print(f"[DEBUG] No orders available: {e}")
+            return
+
+        travel_date = random_order.get('travelDate')
+        train_number = random_order.get('trainNumber')
+        url = self.get_addr('order-service', "/api/v1/orderservice/order/query_already_sold_orders")
+        payload = {
+            "travelDate": travel_date,
+            "trainNumber": train_number
+        }
+        print(f"[DEBUG] Query Already Sold Orders - URL: {url}, Payload: {payload}")
+        response = self.client.post(url, json=payload, headers=self.auth_headers())
+        try:
+            content = response._content.decode('utf-8')
+        except Exception as e:
+            content = str(e)
+        print(f"[DEBUG] query_already_sold_orders response - Status: {response.status_code}, Content: {content}")
+
 
     @task
     def get_left_ticket_of_interval(self):
