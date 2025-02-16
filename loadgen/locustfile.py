@@ -155,6 +155,7 @@ class NormalUser(HttpUser):
                                      "travelDate": travel_date,
                                      "trainNumber": train_number
                                  }, headers=self.auth_headers())
+        print(response)
 
     # @task
     # def query_already_sold_orders(self):
