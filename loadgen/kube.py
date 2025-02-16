@@ -31,6 +31,7 @@ def get_ip_map():
         "food-service": "18856",
         "ui-dashboard": "8080"
     }
+    print(f"FULL MAP DEBUG: {full_ip_map}")
     ip_map = {}
     for key, value in full_ip_map.items():
         if key in port_map:
