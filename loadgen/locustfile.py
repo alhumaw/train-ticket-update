@@ -147,15 +147,31 @@ class NormalUser(HttpUser):
 
     @task
     def get_sold_tickets(self):
-        random_order = random.choice(self.getAllOrders())
-        travel_date = random_order['travelDate']
-        train_number = random_order['trainNumber']
-        response = self.client.post(self.get_addr('order-service', "/api/v1/orderservice/order/tickets"),
-                                 json = {
-                                     "travelDate": travel_date,
-                                     "trainNumber": train_number
-                                 }, headers=self.auth_headers())
-        print(response.data)
+        try:
+            orders = self.getAllOrders()
+            print("[DEBUG] Orders returned:", orders)
+            random_order = random.choice(orders)
+        except Exception as e:
+            print("[ERROR] Failed to get orders or select a random order:", e)
+            return
+
+        travel_date = random_order.get('travelDate')
+        train_number = random_order.get('trainNumber')
+        url = self.get_addr('order-service', "/api/v1/orderservice/order/tickets")
+        payload = {
+            "travelDate": travel_date,
+            "trainNumber": train_number
+        }
+        print(f"[DEBUG] Sending POST to {url} with payload: {payload}")
+        
+        response = self.client.post(url, json=payload, headers=self.auth_headers())
+        print(f"[DEBUG] Response status code: {response.status_code}")
+        try:
+            # Using response.text to print the content of the response
+            print("[DEBUG] Response content:", response.text)
+        except Exception as e:
+            print("[ERROR] Could not decode response content:", e)
+
 
     # @task
     # def query_already_sold_orders(self):
