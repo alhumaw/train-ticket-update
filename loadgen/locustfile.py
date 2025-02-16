@@ -207,27 +207,79 @@ class NormalUser(HttpUser):
     def place_random_order(self):
         # Get all routes
         routes = self.getAllRoutes()
-        route = random.sample(routes, 1)[0]['stations']
+        if not routes:
+            print("[DEBUG] No routes available for placing an order. Aborting task.")
+            return
+        # Pick one random route and extract the 'stations' list
+        route = random.choice(routes)['stations']
+        if not route or len(route) < 2:
+            print("[DEBUG] Not enough stations in selected route. Aborting task.")
+            return
         route_ids = random.sample(range(0, len(route)), 2)
         route_ids.sort()
         start, end = route[route_ids[0]], route[route_ids[1]]
         trip_date_time = get_random_time(100)
+        print(f"[DEBUG] Placing order: start station: {start}, end station: {end}, date: {trip_date_time}")
 
-
+        # Get a trip between the selected stations
         trip = self.get_a_trip_between_stations(start, end, trip_date_time)
-        if trip == None:
-            # print('Returning')
+        if trip is None:
+            print("[DEBUG] No trip found between stations; order aborted.")
             return
-        tripId = trip['tripId']
-        contact_id = random.choice(self.getAllContacts())['id']
+        tripId = trip.get('tripId')
+        if not tripId:
+            print("[DEBUG] Trip does not contain a tripId; order aborted.")
+            return
 
-        food_list = self.get_food_for_trip(trip_date_time, trip['startingStation'], trip['terminalStation'], tripId)
+        # Get a contact id from contacts
+        contacts = self.getAllContacts()
+        if not contacts:
+            print("[DEBUG] No contacts available; cannot place order.")
+            return
+        contact_id = random.choice(contacts).get('id')
+        if not contact_id:
+            print("[DEBUG] Selected contact does not contain an id; aborting order.")
+            return
+
+        # Get food for the trip
+        food_list = self.get_food_for_trip(trip_date_time, trip.get('startingStation'), trip.get('terminalStation'), tripId)
+        print(f"[DEBUG] Food list returned: {food_list}")
         food = None
-        if random.choice([0, 1]) == 0:
-            food = random.choice(food_list['trainFoodList'][0]['foodList'])
+        if food_list is None:
+            print("[DEBUG] food_list is None; no food will be selected.")
         else:
-            fsmap = food_list['foodStoreListMap']
-            food = random.choice(random.choice(random.choice(list(fsmap.values())))['foodList'])
+            # First, try to get food from 'trainFoodList'
+            if ('trainFoodList' in food_list and 
+                isinstance(food_list['trainFoodList'], list) and 
+                len(food_list['trainFoodList']) > 0 and 
+                isinstance(food_list['trainFoodList'][0], dict) and 
+                'foodList' in food_list['trainFoodList'][0] and 
+                food_list['trainFoodList'][0]['foodList']):
+                try:
+                    food = random.choice(food_list['trainFoodList'][0]['foodList'])
+                    print(f"[DEBUG] Selected food from trainFoodList: {food}")
+                except Exception as e:
+                    print(f"[ERROR] Exception selecting food from trainFoodList: {e}")
+            # If no food from trainFoodList, try foodStoreListMap
+            if food is None and 'foodStoreListMap' in food_list and food_list['foodStoreListMap']:
+                try:
+                    fsmap = food_list['foodStoreListMap']
+                    # Ensure fsmap is a dict and has values
+                    if isinstance(fsmap, dict) and fsmap.values():
+                        # Pick a random value from the map, which should be a list of stores
+                        store_list = list(fsmap.values())
+                        # Check if the selected store list is a list with a dict having 'foodList'
+                        if store_list and isinstance(store_list[0], list) and store_list[0]:
+                            candidate = random.choice(store_list[0])
+                            if 'foodList' in candidate and candidate['foodList']:
+                                food = random.choice(candidate['foodList'])
+                                print(f"[DEBUG] Selected food from foodStoreListMap: {food}")
+                except Exception as e:
+                    print(f"[ERROR] Exception selecting food from foodStoreListMap: {e}")
+        
+        if food is None:
+            print("[DEBUG] No food selected; aborting order placement.")
+            return
 
         order_request_data = {
             "accountId": self.userId,
@@ -235,14 +287,14 @@ class NormalUser(HttpUser):
             "tripId": tripId,
             "seatType": random.choice([1, 2, 3, 4, 5, 6, 7, 8]),
             "date": trip_date_time,
-            "from": trip['startingStation'],
-            "to": trip['terminalStation'],
+            "from": trip.get('startingStation'),
+            "to": trip.get('terminalStation'),
             "assurance": "",
             "foodType": "",
-            "stationName": trip['startingStation'],
+            "stationName": trip.get('startingStation'),
             "storeName": "",
-            "foodName": food['foodName'] if food else "",
-            "foodPrice": food['price'] if food else "",
+            "foodName": food.get('foodName') if isinstance(food, dict) else "",
+            "foodPrice": food.get('price') if isinstance(food, dict) else "",
             "handleDate": "",
             "consigneeName": "",
             "consigneePhone": "",
@@ -250,8 +302,14 @@ class NormalUser(HttpUser):
             "isWithin": "",
         }
 
-        response = self.client.post(self.get_addr('preserve-service', "/api/v1/preserveservice/preserve"),
-                                 json = order_request_data, headers=self.auth_headers())
+        url = self.get_addr('preserve-service', "/api/v1/preserveservice/preserve")
+        print(f"[DEBUG] Placing order with data: {order_request_data} to URL: {url}")
+        response = self.client.post(url, json=order_request_data, headers=self.auth_headers())
+        try:
+            resp_content = response._content.decode('utf-8')
+        except Exception as e:
+            resp_content = str(e)
+        print(f"[DEBUG] Order response - Status: {response.status_code}, Content: {resp_content}")
 
 class AdminUser(HttpUser):
     weight = 1
