@@ -13,7 +13,7 @@ class NormalUser(HttpUser):
     ip_map, port_map = get_ip_map()
 
     def on_start(self):
-        username = 'fdse_microservice' + str(random.randrange(10))
+        username = 'fdse_microservice'
         password = '111111'
         self.login(username, password)
 
