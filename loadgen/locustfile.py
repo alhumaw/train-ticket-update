@@ -156,16 +156,16 @@ class NormalUser(HttpUser):
                                      "trainNumber": train_number
                                  }, headers=self.auth_headers())
 
-    @task
-    def query_already_sold_orders(self):
-        random_order = random.choice(self.getAllOrders())
-        travel_date = random_order['travelDate']
-        train_number = random_order['trainNumber']
-        response = self.client.post(self.get_addr('order-service', "/api/v1/orderservice/order/query_already_sold_orders"),
-                                 json = {
-                                     "travelDate": travel_date,
-                                     "trainNumber": train_number
-                                 }, headers=self.auth_headers())
+    # @task
+    # def query_already_sold_orders(self):
+    #     random_order = random.choice(self.getAllOrders())
+    #     travel_date = random_order['travelDate']
+    #     train_number = random_order['trainNumber']
+    #     response = self.client.post(self.get_addr('order-service', "/api/v1/orderservice/order/query_already_sold_orders"),
+    #                              json = {
+    #                                  "travelDate": travel_date,
+    #                                  "trainNumber": train_number
+    #                              }, headers=self.auth_headers())
 
     @task
     def get_left_ticket_of_interval(self):
