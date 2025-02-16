@@ -60,6 +60,7 @@ class UserBase:
         self.port_map = port_map
 
     def get_addr(self, service, path):
+        print(self.ip_map)
         return 'http://' + self.ip_map[service] + ':' + self.port_map[service] + path
 
     def auth_headers(self):
