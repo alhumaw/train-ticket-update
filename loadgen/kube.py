@@ -14,7 +14,8 @@ def get_ip_map():
         parts = services.split()
         if len(parts) >= 2:
             name, ip = parts[0].strip(), parts[1].strip()
-            name = name.replace("ts-", "")
+            if name.startswith("ts-"):
+                name = name[3:]
             full_ip_map[name] = ip
     port_map = {
         "admin-user-service": "16115",
@@ -31,12 +32,12 @@ def get_ip_map():
         "food-service": "18856",
         "ui-dashboard": "8080"
     }
-    print(f"FULL MAP DEBUG: {full_ip_map}")
     ip_map = {}
     for key, value in full_ip_map.items():
         if key in port_map:
             ip_map[key] = value
     return ip_map, port_map
+
 
 
 epoch = datetime.datetime.utcfromtimestamp(0)
