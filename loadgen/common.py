@@ -22,7 +22,7 @@ def get_ip_map(network_id):
         "seat-service": "18898",
         "food-map-service": "18855",
         "food-service": "18856",
-        "ui-dashboard": "8080"
+        "ui-dashboard": "8080",
     }
     ip_map = {}
     for key, value in data.items():

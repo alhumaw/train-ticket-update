@@ -7,13 +7,15 @@ import datetime
 
 
 def get_ip_map():
-    code,process = getstatusoutput("kubectl get svc -n train-ticket --no-headers | awk '{print $1,$3}'")
+    code, process = getstatusoutput("kubectl get svc -n train-ticket --no-headers | awk '{print $1,$3}'")
     process = process.strip().split("\n")
     full_ip_map = {}
     for services in process:
-        name,ip = services.split(" ")
-        name = name.replace("ts-","")
-        full_ip_map[name] = ip
+        parts = services.split()
+        if len(parts) >= 2:
+            name, ip = parts[0].strip(), parts[1].strip()
+            name = name.replace("ts-", "")
+            full_ip_map[name] = ip
     port_map = {
         "admin-user-service": "16115",
         "user-service": "12340",
@@ -34,6 +36,7 @@ def get_ip_map():
         if key in port_map:
             ip_map[key] = value
     return ip_map, port_map
+
 
 epoch = datetime.datetime.utcfromtimestamp(0)
 
