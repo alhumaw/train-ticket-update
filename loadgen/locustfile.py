@@ -24,11 +24,26 @@ class NormalUser(HttpUser):
         return {'Authorization': 'Bearer ' + self.token}
 
     def login(self, username, password):
-        response = self.client.post(self.get_addr('ui-dashboard', "/api/v1/users/login"),
-                                 json={'username': username, 'password': password, 'verificationCode':'1234'})
-        data = json.loads(response._content)['data']
-        self.token = data['token']
-        self.userId = data['userId']
+        url = self.get_addr('ui-dashboard', "/api/v1/users/login")
+        payload = {'username': username, 'password': password, 'verificationCode': '1234'}
+        print(f"[DEBUG] Logging in with URL: {url} and payload: {payload}")
+        response = self.client.post(url, json=payload)
+        print(f"[DEBUG] Login response status: {response.status_code}")
+        try:
+            resp_json = json.loads(response._content.decode('utf-8'))
+            print(f"[DEBUG] Login response JSON: {resp_json}")
+        except Exception as e:
+            print(f"[ERROR] Failed to parse JSON response: {e}")
+            resp_json = {}
+        data = resp_json.get('data')
+        if not data:
+            print(f"[ERROR] Login failed, no data in response. Full response: {response._content.decode('utf-8')}")
+            # Optionally, you can set a default token or exit
+            return
+        self.token = data.get('token')
+        self.userId = data.get('userId')
+        print(f"[DEBUG] Login successful. Token: {self.token}, UserID: {self.userId}")
+
 
 
     def getAllTrips(self):
@@ -241,11 +256,26 @@ class AdminUser(HttpUser):
         self.login(username, password)
 
     def login(self, username, password):
-        response = self.client.post(self.get_addr('ui-dashboard', "/api/v1/users/login"),
-                                 json={'username': username, 'password': password, 'verificationCode':'1234'})
-        data = json.loads(response._content)['data']
-        self.token = data['token']
-        self.userId = data['userId']
+        url = self.get_addr('ui-dashboard', "/api/v1/users/login")
+        payload = {'username': username, 'password': password, 'verificationCode': '1234'}
+        print(f"[DEBUG] Logging in with URL: {url} and payload: {payload}")
+        response = self.client.post(url, json=payload)
+        print(f"[DEBUG] Login response status: {response.status_code}")
+        try:
+            resp_json = json.loads(response._content.decode('utf-8'))
+            print(f"[DEBUG] Login response JSON: {resp_json}")
+        except Exception as e:
+            print(f"[ERROR] Failed to parse JSON response: {e}")
+            resp_json = {}
+        data = resp_json.get('data')
+        if not data:
+            print(f"[ERROR] Login failed, no data in response. Full response: {response._content.decode('utf-8')}")
+            # Optionally, you can set a default token or exit
+            return
+        self.token = data.get('token')
+        self.userId = data.get('userId')
+        print(f"[DEBUG] Login successful. Token: {self.token}, UserID: {self.userId}")
+
 
     def getAllTrips(self):
         response = self.client.get(self.get_addr('travel-service', "/api/v1/travelservice/trips"), headers=self.auth_headers())
